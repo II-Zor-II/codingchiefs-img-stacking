@@ -52,77 +52,33 @@ class ImageController extends Controller
 
     function getAllVariations()
     {
-        $variations = [];
-
         $dbResponse = $this->image->all()
             ->groupBy('album_id')
             ->toArray();
 
-        dd(
-            self::permutations([
-                '1' => [1, 2, 3, 8],
-                '2' => [4, 5, 7],
-                '3' => [6, 7],
-                '4' => [9]
-            ])
+        return response()->json(
+            self::permutations($dbResponse)
         );
-        return response()->json();
     }
 
     public static function permutations(array $array)
     {
         switch (count($array)) {
             case 1:
-                // Return the array as-is; returning the first item
-                // of the array was confusing and unnecessary
-                return $array;
+                return $array[0];
                 break;
             case 0:
                 throw new \InvalidArgumentException('Requires at least one array');
                 break;
         }
 
-        // We 'll need these, as array_shift destroys them
-        $keys = array_keys($array);
-
         $a = array_shift($array);
-        $k = array_shift($keys); // Get the key that $a had
         $b = self::permutations($array);
 
         $return = array();
-        foreach ($a as $v) {
-            if (is_numeric($v)) {
-                foreach ($b as $v2) {
-                    // array($k => $v) re-associates $v (each item in $a)
-                    // with the key that $a originally had
-                    // array_combine re-associates each item in $v2 with
-                    // the corresponding key it had in the original array
-                    // Also, using operator+ instead of array_merge
-                    // allows us to not lose the keys once more
-                    if (count($keys) != count($v2)) {
-                        dd(
-                            $array, // [ [9,10] ]
-                            $a, // [6,7]
-                            $v, // 6
-                            $b, // [ [9,10] ]
-                            $v2, // [9,10]
-                            array($k => $v), // [ 0 => 6 ]
-                            $keys // [1]
-                        );
-                        $return[] = array($k => $v) + array_combine($keys, $v2);
-                    }
-                    dd(
-                        $array, // [ [9] ]
-                        $a, // [6,7]
-                        $v, // 6
-                        $b, // [ [9] ]
-                        $v2, // [9]
-                        array($k => $v), // [ 0 => 6 ]
-                        $keys, // [1],
-                        array_combine($keys, $v2)
-                    );
-                    $return[] = array($k => $v) + array_combine($keys, $v2);
-                }
+        foreach ($a as $key => $v) {
+            foreach ($b as $key2 => $v2) {
+                $return[] = array_merge(array($v), (array)$v2);
             }
         }
 

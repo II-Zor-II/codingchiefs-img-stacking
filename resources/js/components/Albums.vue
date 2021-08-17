@@ -24,24 +24,47 @@
         },
         methods: {
             async getImages() {
-
                 let _self = this;
-
                 axios.get('api/image')
                     .then(response => {
                         _self.albums = response.data;
+                        _self.albumsViewCount = Object.keys(_self.albums).length;
+                        _self.albumsStart = 0;
+                        _self.albumsEnd = Object.keys(_self.albums).length
                     })
                     .catch(err => {
                         console.error(err);
                     });
             },
-            generateVariation() {
+            async generateVariation() {
+                let _self = this;
+                if (_self.variations.length === 0) {
+                    axios.get('api/image/variations')
+                        .then(response => {
+                            console.log(response);
+                            _self.variations = response.data;
+                            _self.albums = _self.variations.slice(_self.albumsStart, _self.albumsEnd);
+                            _self.albumsStart += _self.albumsViewCount;
+                            _self.albumsEnd += _self.albumsViewCount;
+                        })
+                        .catch(err => {
+                            console.error(err);
+                        });
+                } else {
+                    _self.albums = _self.variations.slice(_self.albumsStart, _self.albumsEnd);
+                    _self.albumsStart += _self.albumsViewCount;
+                    _self.albumsEnd += _self.albumsViewCount;
+                }
 
             }
         },
         data() {
             return {
-                albums: {}
+                albums: {},
+                albumsViewCount: 0,
+                albumsStart: 0,
+                albumsEnd: 0,
+                variations: []
             }
         }
     }

@@ -1898,6 +1898,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 _self = _this;
                 axios.get('api/image').then(function (response) {
                   _self.albums = response.data;
+                  _self.albumsViewCount = Object.keys(_self.albums).length;
+                  _self.albumsStart = 0;
+                  _self.albumsEnd = Object.keys(_self.albums).length;
                 })["catch"](function (err) {
                   console.error(err);
                 });
@@ -1910,11 +1913,50 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee);
       }))();
     },
-    generateVariation: function generateVariation() {}
+    generateVariation: function generateVariation() {
+      var _this2 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee2() {
+        var _self;
+
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _self = _this2;
+
+                if (_self.variations.length === 0) {
+                  axios.get('api/image/variations').then(function (response) {
+                    console.log(response);
+                    _self.variations = response.data;
+                    _self.albums = _self.variations.slice(_self.albumsStart, _self.albumsEnd);
+                    _self.albumsStart += _self.albumsViewCount;
+                    _self.albumsEnd += _self.albumsViewCount;
+                  })["catch"](function (err) {
+                    console.error(err);
+                  });
+                } else {
+                  _self.albums = _self.variations.slice(_self.albumsStart, _self.albumsEnd);
+                  _self.albumsStart += _self.albumsViewCount;
+                  _self.albumsEnd += _self.albumsViewCount;
+                }
+
+              case 2:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2);
+      }))();
+    }
   },
   data: function data() {
     return {
-      albums: {}
+      albums: {},
+      albumsViewCount: 0,
+      albumsStart: 0,
+      albumsEnd: 0,
+      variations: []
     };
   }
 });

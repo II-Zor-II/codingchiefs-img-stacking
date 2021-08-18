@@ -71,13 +71,15 @@ class ImageController extends Controller
                 throw new \InvalidArgumentException('Requires at least one array');
                 break;
         }
-
         $a = array_shift($array);
         $b = self::permutations($array);
 
         $return = array();
         foreach ($a as $key => $v) {
             foreach ($b as $key2 => $v2) {
+                if (array_key_exists("id", $v2)) { // convert to nested array before merging
+                    $v2 = array($v2);
+                }
                 $return[] = array_merge(array($v), (array)$v2);
             }
         }

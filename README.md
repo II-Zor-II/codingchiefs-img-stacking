@@ -1,6 +1,6 @@
 # Image Stacking Application
 
-uses laravel sail:
+uses Laravel sail:
 * https://laravel.com/docs/8.x/sail
 
 How to use:
